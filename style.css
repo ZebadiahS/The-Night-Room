@@ -106,6 +106,7 @@ main{
 
 #input-field {
     margin-bottom: 2rem;
+    z-index: 5;
 }
 
 #message {
