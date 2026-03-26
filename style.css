@@ -41,7 +41,7 @@ body {
     z-index: 0;
 }
 
-#moon {
+#mars {
     position: absolute;
     top: 10%;
     right: 20%;
@@ -51,7 +51,7 @@ body {
     z-index: 1;
   }
 
-  #mars {
+  #moon {
     position: fixed;
     top: 60%;
     right: -10%;
