@@ -1,4 +1,39 @@
-// —— 
+// —— Time ———————————————————————————————————————
+function displayTime() {
+  const date = new Date();
+  const timeDisplay = document.getElementById("time");
+  const content = document.getElementById("content");
+  const notFound = document.getElementById("not-found");
+  
+
+  // 12-hour format time
+  let hour = date.getHours();
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+  const minute = String(date.getMinutes()).padStart(2, "0");
+  const second = String(date.getSeconds()).padStart(2, "0");
+
+  timeDisplay.textContent = `${hour}:${minute}:${second} ${ampm}`;
+  
+  const h = date.getHours();
+  const m = date.getMinutes();
+  const s = date.getSeconds();
+  if (h < 23 || h >= 4) {
+    notFound.style.display = "flex";
+    content.style.display = "none";
+  } else {
+  }
+  if (h >= 23 || h < 4) {
+    notFound.style.display = "none";
+    content.style.display = "flex";
+  }
+};
+
+displayTime();
+setInterval(displayTime, 1000);
+
+
 
 // ── Stars ──────────────────────────────────────
 const canvas = document.getElementById("stars");

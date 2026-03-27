@@ -8,25 +8,30 @@
 </head>
 <body>
 
-<canvas id="stars"></canvas>
-<img id="moon" src="./images/moon.webp" alt="">
-<img id="earth" src="./images/earth.webp" alt="">
-<img id="mars" src="./images/mars.webp" alt=""">
+<div id="not-found">
+  <h1>404</h1>
+  <h3>Not Found</h3>
+  <p>the resource requested could not be found on this server</p>
+</div>
 
-<header >
-  <h1 id="header-title">The Night Room</h1>
-  <p id="time">time</p>  
-</header>
+<main id="content">
+  <canvas id="stars"></canvas>
+  <img id="moon" src="./images/moon.webp" alt="">
+  <img id="earth" src="./images/earth.webp" alt="">
+  <img id="mars" src="./images/mars.webp" alt="">
 
-<main>
+  <section id="header">
+    <h1 id="header-title">The Night Room</h1>
+    <p id="time"></p>  
+  </section>
 
   <section id="messages"></section>
 
-  <div id="input-field">
+  <section id="input-field">
     <input class="c-trans" id="enter-name"  name="enter-name" type="text" placeholder="Name">
     <input class="c-trans" id="message"  name="send-message" type="text" placeholder="enter message here">
     <button class="c-trans" id="send" >Send</button>
-  </div>
+  </section>
 </main>
 
 <script src="./script.js"></script>
