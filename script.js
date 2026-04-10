@@ -40,8 +40,8 @@ const ctx = canvas.getContext("2d");
 const starColor = () => {
   const r = Math.random();
   if (r < 0.33) return [215, 205, 255]; // white-blue
-  if (r < 0.66) return [150 + Math.random() * 100, 180 + Math.random() * 75, 255]; // blue
-  return [255, 180 + Math.random() * 75, 150 + Math.random() * 100]; // red/pink
+  if (r < 0.66) return [150 + Math.random() * 100, 180 + Math.random() * 75, 255];
+  return [255, 180 + Math.random() * 75, 150 + Math.random() * 100];
 };
 
 const stars = Array.from({length: 5000}, function() {
@@ -191,7 +191,7 @@ const fetchMessages = async () => {
   }
 };
 
-const starPositions = new Map(); // persists across fetches
+const starPositions = new Map();
 
 const displayMessages = (messages) => {
   const container = document.getElementById('content');
@@ -236,5 +236,5 @@ const escapeHTML = (str) => {
 };
 
 // ── Poll for new messages every 10 seconds ────────────────────────────────
-fetchMessages(); // initial load
+fetchMessages();
 setInterval(fetchMessages, 10000);
