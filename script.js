@@ -17,15 +17,15 @@ function displayTime() {
   timeDisplay.textContent = `${hour}:${minute}:${second} ${ampm}`;
   
   const h = date.getHours();
-  if (h < 23 || h >= 4) {
-    notFound.style.display = "flex";
-    content.style.display = "none";
-  } else {
-  }
-  if (h >= 23 || h < 4) {
-    notFound.style.display = "none";
-    content.style.display = "flex";
-  }
+  // if (h < 23 || h >= 4) {
+  //   notFound.style.display = "flex";
+  //   content.style.display = "none";
+  // } else {
+  // }
+  // if (h >= 23 || h < 4) {
+  //   notFound.style.display = "none";
+  //   content.style.display = "flex";
+  // }
 };
 
 displayTime();
@@ -132,7 +132,7 @@ function drawStars() {
 drawStars();
 
 // ── Google Sheets ────────────────────────────────
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbygfIwEDpV2gcF1nzIEClkvMwU9Bvh3PFPIeB7Qho8CPRpKIGzlgG8VXUK-OjqYLAQ7/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwz7BR5Y1hnwxli4_5KKIFF6SHmS8LoZLjJmEQwgJsBgt9m-w6JHnvT6KwrReobIZRu/exec';
 
 const sendButton = document.getElementById('send');
 const messageInput = document.getElementById('message');
@@ -142,23 +142,23 @@ const nameInput = document.getElementById('enter-name');
 sendButton.addEventListener('click', async () => {
   const text = messageInput.value.trim();
   const Name = nameInput.value.trim();
-  console.log('Sending:', { name: Name, text: text }); 
 
-  if (!text) return;
-  if (!Name) return;
+  if (!text || !Name) return;
 
   try {
     await fetch(WEB_APP_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },  // was 'text/plain'
-    body: JSON.stringify({
-        name: Name || 'Anonymous',
-        text: text
-    })
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: Name, message: text })
     });
+
     messageInput.value = '';
     nameInput.value = '';
+
+    // Wait briefly for the sheet to update, then re-fetch
+    setTimeout(fetchMessages, 1000);
+
   } catch (err) {
     console.error('Failed to send:', err);
   }
@@ -167,3 +167,74 @@ sendButton.addEventListener('click', async () => {
 messageInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendButton.click();
 });
+
+// ── Fetch Messages from Google Sheets ────────────────────────────────
+const fetchMessages = async () => {
+  try {
+    const response = await fetch(WEB_APP_URL, {
+      method: 'GET',
+      mode: 'cors',  // Must be 'cors' (not 'no-cors') to read the response
+    });
+
+    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+
+    const data = await response.json();
+
+    if (data.status === 'ok') {
+      displayMessages(data.messages);
+    } else {
+      console.error('Server error:', data.error);
+    }
+
+  } catch (err) {
+    console.error('Failed to fetch messages:', err);
+  }
+};
+
+const starPositions = new Map(); // persists across fetches
+
+const displayMessages = (messages) => {
+  const container = document.getElementById('content');
+
+  // Clear existing stars
+  container.querySelectorAll('.message-star').forEach(el => el.remove());
+
+  messages.forEach(({ timestamp, name, message }) => {
+    // Only assign a position if this message doesn't have one yet
+    if (!starPositions.has(timestamp)) {
+      starPositions.set(timestamp, {
+        x: Math.random() * 60 + 20,
+        y: Math.random() * 60 + 20,
+      });
+    }
+
+    const { x, y } = starPositions.get(timestamp);
+
+    const star = document.createElement('div');
+    star.className = 'message-star';
+    star.style.left = `${x}%`;
+    star.style.top = `${y}%`;
+
+    star.innerHTML = `
+      ★
+      <div class="star-tooltip">
+        <p class="star-name">${escapeHTML(name)}</p>
+        <p class="star-message">${escapeHTML(message)}</p>
+        <p class="star-time">${new Date(timestamp).toLocaleString()}</p>
+      </div>
+    `;
+
+    container.appendChild(star);
+  });
+};
+
+// Prevent XSS — always escape user-generated content before injecting into the DOM
+const escapeHTML = (str) => {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+};
+
+// ── Poll for new messages every 10 seconds ────────────────────────────────
+fetchMessages(); // initial load
+setInterval(fetchMessages, 10000);
