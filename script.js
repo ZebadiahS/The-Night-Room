@@ -1,3 +1,16 @@
+// –– Ship Name Input ———————————————————————————————
+const shipshipNameDisplay = document.getElementById('log-ship').querySelector('input');
+const shipNameButton = document.getElementById('log-ship').querySelector('button');
+const shipNameDisplay = document.getElementById('ship-name');
+
+shipNameButton.addEventListener('click', () => {
+  const shipName = shipshipNameDisplay.value.trim();
+  if (shipName) {
+    shipNameDisplay.textContent = shipName;
+    document.getElementById('log-ship').style.display = 'none';
+  }
+});
+
 // —— Time ———————————————————————————————————————
 function displayTime() {
   const date = new Date();
@@ -132,16 +145,14 @@ function drawStars() {
 drawStars();
 
 // ── Google Sheets ────────────────────────────────
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwz7BR5Y1hnwxli4_5KKIFF6SHmS8LoZLjJmEQwgJsBgt9m-w6JHnvT6KwrReobIZRu/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxjPeZEi3qNPsuKwh4sD7rtIR1YDZJpHcnz8lIe9tZzYjpdTPKLj8S5MPydR7T2_qAv/exec';
 
-const sendButton = document.getElementById('send');
+const sendButton = document.getElementById('transmit');
 const messageInput = document.getElementById('message');
-const nameInput = document.getElementById('enter-name');
-
 
 sendButton.addEventListener('click', async () => {
   const text = messageInput.value.trim();
-  const Name = nameInput.value.trim();
+  const Name = shipNameDisplay.textContent.trim();
 
   if (!text || !Name) return;
 
@@ -154,9 +165,6 @@ sendButton.addEventListener('click', async () => {
     });
 
     messageInput.value = '';
-    nameInput.value = '';
-
-    // Wait briefly for the sheet to update, then re-fetch
     setTimeout(fetchMessages, 1000);
 
   } catch (err) {
@@ -173,7 +181,7 @@ const fetchMessages = async () => {
   try {
     const response = await fetch(WEB_APP_URL, {
       method: 'GET',
-      mode: 'cors',  // Must be 'cors' (not 'no-cors') to read the response
+      mode: 'cors',
     });
 
     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
@@ -196,19 +204,29 @@ const starPositions = new Map();
 const displayMessages = (messages) => {
   const container = document.getElementById('content');
 
-  // Clear existing stars
   container.querySelectorAll('.message-star').forEach(el => el.remove());
 
-  messages.forEach(({ timestamp, name, message }) => {
-    // Only assign a position if this message doesn't have one yet
-    if (!starPositions.has(timestamp)) {
-      starPositions.set(timestamp, {
+  const tooltip = document.getElementById('star-tooltip');
+  const closeBtn = document.getElementById('close');
+
+  closeBtn.addEventListener('click', () => {
+    hoverCount--;
+    if (hoverCount === 0) startMessagePolling();
+    tooltip.classList.remove('visible');
+  });
+
+  messages.forEach(({ timestamp, name, messages }) => {
+
+    if (!starPositions.has(name)) {
+      starPositions.set(name, {
         x: Math.random() * 60 + 20,
         y: Math.random() * 60 + 20,
+        assetNum: Math.floor(Math.random() *8) + 1,
+        assetSize: Math.floor(Math.random() * 51) + 30,
       });
     }
 
-    const { x, y } = starPositions.get(timestamp);
+    const { x, y, assetNum, assetSize } = starPositions.get(name);
 
     const star = document.createElement('div');
     star.className = 'message-star';
@@ -216,19 +234,37 @@ const displayMessages = (messages) => {
     star.style.top = `${y}%`;
 
     star.innerHTML = `
-      ★
-      <div class="star-tooltip">
-        <p class="star-name">${escapeHTML(name)}</p>
-        <p class="star-message">${escapeHTML(message)}</p>
-        <p class="star-time">${new Date(timestamp).toLocaleString()}</p>
-      </div>
+      <div class="bracket tl"></div><div class="bracket tr"></div>
+      <div class="bracket bl"></div><div class="bracket br"></div>
+      <img src="./images/slice${assetNum}.webp" class="star-asset" alt="★" style="width: ${assetSize}px;">
     `;
+
+    const messageLines = (messages || [])
+      .map((msg, index) => {
+        const isLast = index === (messages.length - 1);
+        return `
+        <div class="message-entry">
+          <p class="star-message">${escapeHTML(msg)}</p>
+          ${isLast ? `<p class="star-time">${new Date(timestamp).toLocaleString()}</p>` : ''}
+        </div>
+      `;
+      })
+      .join('');
+
+    star.addEventListener('click', () => {
+      hoverCount++;
+      stopMessagePolling();
+      const starNameElement = tooltip.querySelector('.star-name');
+      const starDetails = tooltip.querySelector('.star-details');
+      if (starNameElement) starNameElement.textContent = escapeHTML(name);
+      if (starDetails) starDetails.innerHTML = messageLines;
+      tooltip.classList.add('visible');
+    });
 
     container.appendChild(star);
   });
 };
 
-// Prevent XSS — always escape user-generated content before injecting into the DOM
 const escapeHTML = (str) => {
   const div = document.createElement('div');
   div.textContent = str;
@@ -236,5 +272,21 @@ const escapeHTML = (str) => {
 };
 
 // ── Poll for new messages every 10 seconds ────────────────────────────────
+let messagePollInterval = null;
+let hoverCount = 0;
+
+const startMessagePolling = () => {
+  if (!messagePollInterval) {
+    messagePollInterval = setInterval(fetchMessages, 10000);
+  }
+};
+
+const stopMessagePolling = () => {
+  if (messagePollInterval) {
+    clearInterval(messagePollInterval);
+    messagePollInterval = null;
+  }
+};
+
 fetchMessages();
-setInterval(fetchMessages, 10000);
+startMessagePolling();

@@ -14,21 +14,33 @@
   <p>the resource requested could not be found on this server</p>
 </div>
 
+<div id="log-ship">
+  <input class="c-trans" type="text" placeholder="Log Ship Name">
+  <button class="send">Log Ship</button>
+</div>
+
+<canvas id="stars"></canvas>
+
 <main id="content">
-  <canvas id="stars"></canvas>
   <img id="moon" src="./images/moon.webp" alt="">
   <img id="earth" src="./images/earth.webp" alt="">
   <img id="mars" src="./images/mars.webp" alt="">
 
-  <section id="interface">
-  <div id="input-field">
-  <div class="input-wrap" id="wrap-name">
-    <div class="scan-bar"></div>
-    <div class="bracket tl"></div><div class="bracket tr"></div>
-    <div class="bracket bl"></div><div class="bracket br"></div>
-    <input class="c-trans" id="enter-name" name="enter-name" type="text" placeholder="Name">
+  <div class="star-tooltip" id="star-tooltip">
+    <button id="close">
+    <svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <line x1="20" y1="20" x2="80" y2="80" stroke="currentColor" stroke-width="15" stroke-linecap="round"/>
+      <line x1="80" y1="20" x2="20" y2="80" stroke="currentColor" stroke-width="15" stroke-linecap="round"/>
+    </svg>
+    </button>
+    <h2 class="star-name"></h2>
+    <div class="star-details"></div>
   </div>
 
+  <section id="interface">
+    <div class="uplink"><p>DEEP SPACE UPLINK</p></div>
+
+  <div id="input-field">
   <div class="input-wrap" id="wrap-message">
     <div class="scan-bar"></div>
     <div class="bracket tl"></div><div class="bracket tr"></div>
@@ -36,11 +48,11 @@
     <input class="c-trans" id="message" name="send-message" type="text" placeholder="enter message here">
   </div>
 
-  <button class="c-trans" id="send">Send</button>
+  <button class="send" id="transmit">transmit</button>
 </div>
 
   <div id="header">
-    <p id="header-title">The Night Room</p>
+    <p id="ship-name"></p>
     <p id="time"></p>  
   </div>
   </section>
