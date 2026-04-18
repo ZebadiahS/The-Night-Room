@@ -197,6 +197,7 @@ const fetchMessages = async () => {
   } catch (err) {
     console.error('Failed to fetch messages:', err);
   }
+  console.log('Started message polling');
 };
 
 const starPositions = new Map();
@@ -210,7 +211,7 @@ const displayMessages = (messages) => {
   const closeBtn = document.getElementById('close');
 
   closeBtn.addEventListener('click', () => {
-    hoverCount--;
+    hoverCount = 0;
     if (hoverCount === 0) startMessagePolling();
     tooltip.classList.remove('visible');
   });
@@ -252,7 +253,7 @@ const displayMessages = (messages) => {
       .join('');
 
     star.addEventListener('click', () => {
-      hoverCount++;
+      hoverCount = 1;
       stopMessagePolling();
       const starNameElement = tooltip.querySelector('.star-name');
       const starDetails = tooltip.querySelector('.star-details');
